@@ -43,14 +43,17 @@ def process_xml(xml_path: str):
 
 
 def main():
-    # ユーザーに対象ディレクトリを複数行で入力してもらう
-    print("対象とするディレクトリのパスを複数行入力してください（終了するには空行を入力）:")
+    # ユーザーに対象ディレクトリを入力してもらう
+    print("対象とするディレクトリのパスを入力してください（複数行可能、終了するには空行を入力）:")
     target_dirs = []
     while True:
-        line = input().strip()
+        raw_line = input()
+        # 前後のクォーテーションを除去
+        line = raw_line.strip().strip('"').strip("'")
         if not line:
             break
         target_dirs.append(line)
+
     if not target_dirs:
         print("エラー: 対象ディレクトリが入力されませんでした。")
         sys.exit(1)
