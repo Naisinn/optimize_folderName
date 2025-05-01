@@ -43,43 +43,54 @@ def process_xml(xml_path: str):
 
 
 def main():
-    # ユーザーに対象ディレクトリを入力してもらう
-    target_dir = input("対象とするディレクトリのパスを入力してください: ").strip()
-    if not os.path.isdir(target_dir):
-        print(f"エラー: '{target_dir}' は存在しないかディレクトリではありません。")
+    # ユーザーに対象ディレクトリを複数行で入力してもらう
+    print("対象とするディレクトリのパスを複数行入力してください（終了するには空行を入力）:")
+    target_dirs = []
+    while True:
+        line = input().strip()
+        if not line:
+            break
+        target_dirs.append(line)
+    if not target_dirs:
+        print("エラー: 対象ディレクトリが入力されませんでした。")
         sys.exit(1)
 
-    # 深い階層から処理するために topdown=False を指定
-    for root, dirs, files in os.walk(target_dir, topdown=False):
-        # ファイルのリネーム
-        for name in files:
-            src_path = os.path.join(root, name)
-            new_name = sanitize(name)
-            if new_name != name:
-                dst_path = os.path.join(root, new_name)
-                if os.path.exists(dst_path):
-                    print(f"警告: リネーム先 '{dst_path}' が既に存在します。スキップします。")
-                else:
-                    os.rename(src_path, dst_path)
-                    print(f"リネーム: '{src_path}' -> '{dst_path}'")
+    for target_dir in target_dirs:
+        if not os.path.isdir(target_dir):
+            print(f"エラー: '{target_dir}' は存在しないかディレクトリではありません。")
+            continue
 
-        # ディレクトリのリネーム
-        for name in dirs:
-            src_path = os.path.join(root, name)
-            new_name = sanitize(name)
-            if new_name != name:
-                dst_path = os.path.join(root, new_name)
-                if os.path.exists(dst_path):
-                    print(f"警告: リネーム先 '{dst_path}' が既に存在します。スキップします。")
-                else:
-                    os.rename(src_path, dst_path)
-                    print(f"リネーム: '{src_path}' -> '{dst_path}'")
+        # 深い階層から処理するために topdown=False を指定
+        for root, dirs, files in os.walk(target_dir, topdown=False):
+            # ファイルのリネーム
+            for name in files:
+                src_path = os.path.join(root, name)
+                new_name = sanitize(name)
+                if new_name != name:
+                    dst_path = os.path.join(root, new_name)
+                    if os.path.exists(dst_path):
+                        print(f"警告: リネーム先 '{dst_path}' が既に存在します。スキップします。")
+                    else:
+                        os.rename(src_path, dst_path)
+                        print(f"リネーム: '{src_path}' -> '{dst_path}'")
 
-    # train.xml 内のパス・名前の更新
-    for root, dirs, files in os.walk(target_dir):
-        if 'train.xml' in files:
-            xml_file = os.path.join(root, 'train.xml')
-            process_xml(xml_file)
+            # ディレクトリのリネーム
+            for name in dirs:
+                src_path = os.path.join(root, name)
+                new_name = sanitize(name)
+                if new_name != name:
+                    dst_path = os.path.join(root, new_name)
+                    if os.path.exists(dst_path):
+                        print(f"警告: リネーム先 '{dst_path}' が既に存在します。スキップします。")
+                    else:
+                        os.rename(src_path, dst_path)
+                        print(f"リネーム: '{src_path}' -> '{dst_path}'")
+
+        # train.xml 内のパス・名前の更新
+        for root, dirs, files in os.walk(target_dir):
+            if 'train.xml' in files:
+                xml_file = os.path.join(root, 'train.xml')
+                process_xml(xml_file)
 
     print("処理が完了しました。")
 
